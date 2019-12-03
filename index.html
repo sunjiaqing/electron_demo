@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主窗口</title>
+
+</head>
+<body>
+<h1>主窗口</h1>
+<button id="crateChildWin">生成一个窗口 </button>
+<button id="send">发送一个消息 </button>
+<button id="sub">弹窗</button>
+<button id="subSave">保存窗口</button>
+<button id="subMessage">消息对话框</button>
+<button id="openWin">window.open</button>
+<button id="postMessage">postMessage</button>
+<button id="progressBar">任务栏进度条</button>
+<textarea></textarea>
+<br/>
+<webview id="webView" src="https://www.baidu.com" style="height: 200px;width: 200px"></webview>
+<br/>
+<!--https://developer.chrome.com/apps/tags/webview webview文档-->
+<!--https://electronjs.org/docs/api/webview-tag文档-->
+<webview id="webView1" src="https://www.baidu.com/" style= "height:500px" autosize minwidth="600" ></webview>
+
+<br/>
+<!--nodeintegration 支持nodejs 代码-->
+<webview id="webView2" src="./test.html" nodeintegration  style= "height:500px" autosize minwidth="600" ></webview>
+
+<br/>
+<div id="contentMenu" style="width: 200px;height: 200px;background-color: deeppink"></div>
+</body>
+</html>
+<script src="index_env.js"></script>
