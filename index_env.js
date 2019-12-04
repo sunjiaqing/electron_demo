@@ -1,5 +1,6 @@
 const {remote, ipcRenderer, webFrame} = require('electron');
-const {BrowserWindow, ipcMain, dialog, screen,Menu,MenuItem} = remote;
+const {BrowserWindow, ipcMain, dialog, screen, Menu, MenuItem} = remote;
+const path = require("path");
 ipcMain.on("message", (event, obj) => {
     console.info(event)
     console.info(obj)
@@ -11,9 +12,7 @@ ipcRenderer.on("message", (event, obj) => {
 })
 
 window.onload = function () {
-    console.log("index_env.js load")
-    let btn = document.getElementById("crateChildWin");
-    btn.addEventListener('click', () => {
+    click("crateChildWin", () => {
         let win = new BrowserWindow({width: 500, height: 500, show: false, webPreferences: {nodeIntegration: true}});
         win.webContents.openDevTools()
         let promise = win.loadFile("child.html");
@@ -25,15 +24,14 @@ window.onload = function () {
             win = null
         });
     })
-    let btn2 = document.getElementById("send");
-    btn2.addEventListener("click", () => {
+
+    click("send", () => {
         let mainWin = remote.getCurrentWindow();
         mainWin.webContents.send("message", {name: "测试"})
         console.info("消息发送成功")
     })
 
-    let btn3 = document.getElementById("sub");
-    btn3.addEventListener("click", () => {
+    click("sub", () => {
         let nowWim = remote.getCurrentWindow();
         let promise = dialog.showOpenDialog(nowWim, {
             title: "对话框窗口",
@@ -47,11 +45,9 @@ window.onload = function () {
         promise.then((result) => {
             console.log(result.filePaths)
         })
-
     })
 
-    let btn4 = document.getElementById("subSave");
-    btn4.addEventListener("click", () => {
+    click("subSave", () => {
         let promise = dialog.showSaveDialog({
             title: "保存对话框", defaultPath: ".", buttonLabel: "测试", filters: [
                 {name: "javascript", extensions: ["js"]},
@@ -62,8 +58,8 @@ window.onload = function () {
             console.log(result.filePath);
         })
     })
-    let btn5 = document.getElementById("subMessage");
-    btn5.addEventListener("click", () => {
+
+    click("subMessage", () => {
         let promise = dialog.showMessageBox(remote.getCurrentWindow(), {
             type: "warning",
             title: "messageBox",
@@ -71,8 +67,7 @@ window.onload = function () {
             detail: "额外消息",
             checkboxLabel: "请同意",
             checkboxChecked: false,
-            buttons: ["test1", "test2"],
-            icon: null
+            buttons: ["test1", "test2"]
         });
         promise.then((result) => {
             //checkboxChecked 不会发生变化win10 bug
@@ -81,6 +76,7 @@ window.onload = function () {
         })
         console.log(promise)
     })
+
     var bWin;
     click("openWin", () => {
         bWin = window.open("./sub.html", "", "height=400,width=400");
@@ -160,10 +156,14 @@ window.onload = function () {
     //上下文菜单+自定义菜单
     let menu = new Menu();
 
-    let menuCopyItem = new MenuItem({label:"粘贴",role:"copy"});
-    let menuSeparatorItem = new MenuItem(   {type: "separator"});
-    let menuFileItem = new MenuItem({label:"文件",submenu:[menuCopyItem]});
-    let menuTestItem = new MenuItem({label:"测试",click:()=>{console.log("测试-----------------")}});
+    let menuCopyItem = new MenuItem({label: "粘贴", role: "copy"});
+    let menuSeparatorItem = new MenuItem({type: "separator"});
+    let menuFileItem = new MenuItem({label: "文件", submenu: [menuCopyItem]});
+    let menuTestItem = new MenuItem({
+        label: "测试", click: () => {
+            console.log("测试-----------------")
+        }
+    });
     menu.append(menuFileItem)
     menu.append(menuSeparatorItem)
     menu.append(menuTestItem)
@@ -173,9 +173,23 @@ window.onload = function () {
         env.preventDefault()
         console.log(env);
         console.log(env.x)
-        menu.popup({x:env.x,y:env.y,callback:()=>{console.log("关闭回调")}})
+        menu.popup({
+            x: env.x, y: env.y, callback: () => {
+                console.log("关闭回调")
+            }
+        })
+    })
+    //托盘气泡
+    click("balloon", () => {
+        let tray = remote.getGlobal("tray");
+        if (tray != undefined && tray != null && !tray.isDestroyed()) {
+            console.log("测试气泡")
+            //icon 传时 打包后无法正常显示气泡
+            tray.displayBalloon({title: "测试气泡",icon:path.join(__dirname, "redis.png"), content: "测试气泡内容"})
+        }
     })
 
+    //拖拽
 }
 
 function click(strId, fnc) {
